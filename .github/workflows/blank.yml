@@ -23,25 +23,22 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Extract SecureBrowse
-        run: |
-          unzip -q SecureBrowse-v2.zip -d project
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
 
-      - name: Build APK
+      - name: Extract project
+        run: unzip -q SecureBrowse-v2.zip -d project
+
+      - name: Build Android APK
         run: |
-          GRADLEW=$(find project -type f -name gradlew | head -n 1)
-          if [ -z "$GRADLEW" ]; then
-            echo "Gradle wrapper not found in ZIP"
-            exit 1
-          fi
-          PROJECT_DIR=$(dirname "$GRADLEW")
-          cd "$PROJECT_DIR"
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          cd project/SecureBrowse-v2
+          gradle :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SecureBrowse-APK
-          path: project/**/build/outputs/apk/debug/*.apk
+          path: project/SecureBrowse-v2/app/build/outputs/apk/debug/app-debug.apk
           
